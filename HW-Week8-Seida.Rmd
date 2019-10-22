@@ -1,0 +1,146 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+Three main parts to Data Wrangling:  
+1.Wrangle  
+2.Understand  
+3.Communicate  
+
+Tibble is basically a package that makes a more modern version of R's original data.frame  
+
+```{r}
+library(tidyverse)
+
+```
+
+To use a data frame as a tibble...
+
+```{r}
+as_tibble(iris)
+```
+
+It’s possible for a tibble to have column names that are not valid R variable names, aka non-syntactic names. For example, they might not start with a letter, or they might contain unusual characters like a space. To refer to these variables, you need to surround them with backticks, `
+`:)`
+
+A tribble makes it so functions can be column names 
+
+Tibbles have a refined print method that shows only the first 10 rows, and all the columns that fit on screen. 
+
+To show more than just 10 rows: 
+First, you can explicitly print() the data frame and control the number of rows (n) and the width of the display. width = Inf will display all columns
+
+To extract a name of a column, df$x
+To extract a column based on position, df[[1]]
+
+10.5 Exercises 
+```{r}
+mtcars #you can tell if an object is a tibble because it will say it is a tibble at te top and also because it will only show the first 10 rows.
+as_tibble(mtcars)
+
+```
+
+```{r}
+df <- tibble(abc = 1, xyz = "a")
+df$x
+df[, "xyz"]
+df[, c("abc", "xyz")]
+# you can use double bracket to search for a value name in a data set 
+```
+```{r}
+practice <- tibble(
+  `1` = 1:10,
+  `2` = `1` * 2 + 9
+)
+practice[["1"]]
+ggplot(practice, aes(x = `1`, y = `2`)) +
+  geom_point()
+mutate(practice, `3` = `2`/`1`) 
+practice <- rename(practice, one = `1`, two = `2`)
+```
+
+Chapter 11:
+
+Most of readr’s functions are concerned with turning flat files into data frames:
+
+The first argument to read_csv() is the most important: it’s the path to the file to read.
+
+The data might not have column names. You can use col_names = FALSE to tell read_csv() not to treat the first row as headings, and instead label them sequentially from X1 to Xn
+
+\n adds a new line 
+
+na = "." replaces any NA values w a . 
+
+So in general read_csv is better than raed.csv. It's faster to read and will reduce common problems w Base R.
+
+"x,y\n1,'a,b'" to read this into a data frame you would need to use read_delim() and specify what a comma and a quote is.
+
+parse_*() functions take a character vector and return a more specialised vector like a logical, integer, or date
+
+parse_double() can turn a comma to a decimal mark 
+Ex/
+```{r}
+parse_double("1.23")
+#> [1] 1.23
+parse_double("1,23", locale = locale(decimal_mark = ","))
+#> [1] 1.23
+```
+
+parse_number() ignores non-numeric characters before and after the number.
+Ex/
+```{r}
+parse_number("$100")
+#> [1] 100
+parse_number("20%")
+#> [1] 20
+parse_number("It cost $123.45")
+#> [1] 123
+```
+parse_datetime() expects an ISO8601 date-time. ISO8601 is an international standard in which the components of a date are organised from biggest to smallest: year, month, day, hour, minute, second.
+
+Non-digits
+%. skips one non-digit character.
+%* skips any number of non-digits.
+
+Exercises:
+The most important arguments to local are the data and time arguments as well as decimal mark and a grouping argument.
+
+```{r}
+locale(decimal_mark = ".", grouping_mark = ".")
+```
+If you set the decimal and group mark arguments to the same character there's an error. They have to be different. If one is set as comma, the other period and vice versa.
+
+In foreign countries, you can change order of date format:
+```{r}
+Spain<- locale(date_format = "%d/%m/%Y")
+parse_date("05/03/2019", locale = Spain)
+```
+read_csv() uses a common, read_csv2() uses a semicolon
+
+```{r}
+d1 <- "January 1, 2010"
+d2 <- "2015-Mar-07"
+d3 <- "06-Jun-2017"
+```
+
+```{r}
+parse_date(d1, "%B %d, %Y")
+parse_date(d2, "%Y-%b-%d")
+parse_date(d3, "%d-%b-%Y")
+```
+
